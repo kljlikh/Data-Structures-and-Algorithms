@@ -1,7 +1,7 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
-// Cấu trúc sinh viên
 struct Student {
     int id;
     string name;
@@ -9,132 +9,49 @@ struct Student {
     Student* next;
 };
 
-// Danh sách liên kết
-class StudentList {
-private:
-    Student* head;         // danh sách hợp lệ
-    Student* invalidHead;  // danh sách không hợp lệ
+int main() {
+    Student* head = NULL;
+    int n;
 
-public:
-    StudentList() {
-        head = NULL;
-        invalidHead = NULL;
-    }
+    cout << "Nhap so hoc sinh: ";
+    cin >> n;
+    cin.ignore();
 
-    // Thêm vào danh sách bất kỳ
-    void addToList(Student*& listHead, int id, string name, float score) {
-        Student* newStudent = new Student{id, name, score, NULL};
+    // Nhập dữ liệu
+    for(int i = 0; i < n; i++) {
+        Student* sv = new Student;
+        cout << "\nHoc sinh " << i+1 << ":\n";
+        cout << "ID: "; cin >> sv->id; cin.ignore();
+        cout << "Ten: "; getline(cin, sv->name);
+        cout << "Diem: "; cin >> sv->score; cin.ignore();
+        sv->next = NULL;
 
-        if (listHead == NULL) {
-            listHead = newStudent;
-        } else {
-            Student* temp = listHead;
-            while (temp->next != NULL)
-                temp = temp->next;
-            temp->next = newStudent;
+        // Thêm vào danh sách
+        if(!head) head = sv;
+        else {
+            Student* t = head;
+            while(t->next) t = t->next;
+            t->next = sv;
         }
     }
 
-    // Thêm sinh viên (có kiểm tra)
-    void addStudent(int id, string name, float score) {
-        if (score < 0 || score > 10) {
-            cout << "Loi: Sinh vien " << name << " co diem khong hop le!\n";
-            addToList(invalidHead, id, name, score); // lưu vào danh sách sai
-        } else {
-            addToList(head, id, name, score); // lưu vào danh sách đúng
-        }
-    }
-
-    // Hiển thị danh sách
-    void displayList(Student* listHead) {
-        if (listHead == NULL) {
-            cout << "Danh sach rong!\n";
-            return;
-        }
-
-        Student* temp = listHead;
-        while (temp != NULL) {
-            cout << temp->id << " - " << temp->name << " - " << temp->score << endl;
-            temp = temp->next;
-        }
-    }
-
-    // Hiển thị tất cả
-    void displayAll() {
-        cout << "\nDanh sach sinh vien hop le:\n";
-        displayList(head);
-
-        cout << "\nDanh sach sinh vien KHONG hop le:\n";
-        displayList(invalidHead);
-    }
-
-    // Hàm trộn
-    Student* merge(Student* a, Student* b) {
-        if (!a) return b;
-        if (!b) return a;
-
-        if (a->score > b->score) {
-            a->next = merge(a->next, b);
-            return a;
-        } else {
-            b->next = merge(a, b->next);
-            return b;
-        }
-    }
-
-    // Tách danh sách
-    void split(Student* source, Student** front, Student** back) {
-        Student* slow = source;
-        Student* fast = source->next;
-
-        while (fast != NULL) {
-            fast = fast->next;
-            if (fast != NULL) {
-                slow = slow->next;
-                fast = fast->next;
+    // Sắp xếp điểm giảm dần 
+    for(Student* i = head; i; i = i->next) {
+        for(Student* j = i->next; j; j = j->next) {
+            if(i->score < j->score) {
+                swap(i->id, j->id);
+                swap(i->name, j->name);
+                swap(i->score, j->score);
             }
         }
-
-        *front = source;
-        *back = slow->next;
-        slow->next = NULL;
     }
 
-    // Merge Sort
-    void mergeSort(Student** headRef) {
-        Student* head = *headRef;
-        if (!head || !head->next) return;
-
-        Student* a;
-        Student* b;
-
-        split(head, &a, &b);
-
-        mergeSort(&a);
-        mergeSort(&b);
-
-        *headRef = merge(a, b);
+    // In kết quả
+    cout << "\n===DIEM===\n";
+    for(Student* p = head; p; p = p->next) {
+        cout << p->id << " - " << p->name << " - " << p->score << endl;
     }
-
-    // Sắp xếp danh sách hợp lệ
-    void sortStudents() {
-        mergeSort(&head);
-    }
-};
-
-int main() {
-    StudentList list;
-
-    list.addStudent(1, "An", 7.5);
-    list.addStudent(2, "Binh", 11);
-    list.addStudent(3, "Chi", -2);
-
-    list.displayAll();
-
-    list.sortStudents();
-
-    cout << "\nSau khi sap xep danh sach hop le:\n";
-    list.displayAll();
 
     return 0;
 }
+
